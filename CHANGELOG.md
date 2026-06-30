@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+- `Pipedrive.open_timeout` (default 5 s) and `Pipedrive.timeout` (default 10 s) — configurable per-connection request timeouts.
+- `PipedriveError#http_method` and `#http_path` — error messages now include the request method and path (e.g. `(Status 404) Not Found [GET deals/99]`).
+
+### Changed
+- Faraday dependency updated from `< 3` to `>= 2.14.3, < 3`.
+
 ## [2.1.2] - 2025-08-12
 
 ### Fixes

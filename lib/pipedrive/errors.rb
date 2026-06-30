@@ -2,18 +2,21 @@
 
 module Pipedrive
   class PipedriveError < StandardError
-    attr_reader :code, :data
+    attr_reader :code, :data, :http_method, :http_path
 
-    def initialize(message = nil, code = nil, data = nil)
+    def initialize(message = nil, code = nil, data = nil, http_method: nil, http_path: nil)
       super(message)
       @message = message
       @code = code
       @data = data
+      @http_method = http_method
+      @http_path = http_path
     end
 
     def message
       code_str = @code.nil? ? "" : "(Status #{@code}) "
-      "#{code_str}#{@message}"
+      request_str = @http_method && @http_path ? " [#{@http_method.to_s.upcase} #{@http_path}]" : ""
+      "#{code_str}#{@message}#{request_str}"
     end
   end
 
@@ -51,7 +54,7 @@ module Pipedrive
     "503" => ServiceUnavailableError,
   }.freeze
 
-  def raise_error(status, response)
+  def raise_error(status, response, http_method: nil, http_path: nil)
     return if [200, 201].include?(status)
 
     message =
@@ -65,10 +68,12 @@ module Pipedrive
         .inspect
         .concat(response.fetch(:additional_data, {}).inspect)
 
-    error_class = ERROR_CLASS_MAP[status.to_s]
-    raise error_class.new(message, status, error_data) if error_class
+    opts = { http_method: http_method, http_path: http_path }
 
-    raise UnkownAPIError.new(message, status, error_data)
+    error_class = ERROR_CLASS_MAP[status.to_s]
+    raise error_class.new(message, status, error_data, **opts) if error_class
+
+    raise UnkownAPIError.new(message, status, error_data, **opts)
   end
 
   module_function :raise_error

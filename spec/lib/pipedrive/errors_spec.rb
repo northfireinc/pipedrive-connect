@@ -28,5 +28,26 @@ RSpec.describe Pipedrive::PipedriveError do
         expect(subject.message).to eq("Whatever error")
       end
     end
+
+    context "with http_method and http_path" do
+      subject { described_class.new("Not Found", 404, nil, http_method: :get, http_path: "deals/99") }
+
+      it "includes request context in the message" do
+        expect(subject.message).to eq("(Status 404) Not Found [GET deals/99]")
+      end
+
+      it "exposes http_method and http_path as attributes" do
+        expect(subject.http_method).to eq(:get)
+        expect(subject.http_path).to eq("deals/99")
+      end
+    end
+
+    context "message never leaks api_token" do
+      it "does not include the api_token value even if passed in message text" do
+        err = described_class.new("error", 401, nil, http_method: :get, http_path: "deals")
+        expect(err.message).not_to match(/api_token/i)
+        expect(err.message).not_to match(/Authorization/i)
+      end
+    end
   end
 end

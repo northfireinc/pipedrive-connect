@@ -32,7 +32,9 @@ module Pipedrive
                   :debug,
                   :debug_http,
                   :debug_http_body,
-                  :treat_no_content_as_not_found
+                  :treat_no_content_as_not_found,
+                  :open_timeout,
+                  :timeout
 
     attr_writer :faraday_adapter
 
@@ -54,4 +56,6 @@ module Pipedrive
   end
 
   @logger = Logger.new($stdout)
+  @open_timeout = 5
+  @timeout = 10
 end

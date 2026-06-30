@@ -45,18 +45,27 @@ module Pipedrive
             end
           end
 
-          Util.serialize_response(response)
+          Util.serialize_response(response, http_method: method, http_path: url)
         end
 
         def api_client
           @api_client = Faraday.new(
             url: api_base_url,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
+            request: {
+              open_timeout: Pipedrive.open_timeout,
+              timeout:      Pipedrive.timeout,
+            }
           ) do |faraday|
             if Pipedrive.debug_http
               faraday.response :logger, Pipedrive.logger,
-                               bodies:  Pipedrive.debug_http_body
+                               bodies: Pipedrive.debug_http_body
             end
+
+            # Retry middleware is intentionally omitted: Faraday 2.x requires the
+            # separate `faraday-retry` gem, and we do not want to add new runtime
+            # dependencies. Callers that need retry behaviour (e.g. on 429/503)
+            # should wrap calls in their own retry loop or add faraday-retry themselves.
 
             faraday.adapter Pipedrive.faraday_adapter
           end

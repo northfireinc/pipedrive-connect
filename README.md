@@ -55,6 +55,17 @@ require 'pipedrive'
 Pipedrive.api_key = ENV["PIPEDRIVE_API_KEY"]
 ```
 
+### Timeouts
+
+Default timeouts are applied to every request to prevent hung connections:
+
+```ruby
+Pipedrive.open_timeout = 5   # seconds to open the TCP connection (default: 5)
+Pipedrive.timeout      = 10  # seconds to wait for the full response (default: 10)
+```
+
+Override them in your initializer if your environment needs different values.
+
 ### Pipedrive API versions
 
 Pipedrive has started adding new V2 endpoints to their API. You can change which API endpoint is accessed by setting up
